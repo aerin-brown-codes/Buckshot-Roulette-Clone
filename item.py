@@ -29,6 +29,10 @@ class MagnifyingGlass(Item):
 
     def use(self, game, user):
         super().use(game, user)
+        if game.gun[0]:
+            print("You see a live round in the chamber.")
+        else:
+            print("You see a blank round in the chamber.")
         return game.gun[0]
     
 class Cigarettes(Item):

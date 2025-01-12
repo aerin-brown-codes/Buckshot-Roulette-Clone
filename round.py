@@ -22,7 +22,7 @@ class Round:
     def load_gun(self):
         self.live = random.randint(1, 4)
         self.blanks = random.randint(1, 4)
-        print(f"{str(self.live)} live, {str(self.blanks)} blanks.")
+        print(f"{str(self.live)} live, {str(self.blanks)} blank.")
         self.gun = [True] * self.live + [False] * self.blanks
         random.shuffle(self.gun)
         

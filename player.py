@@ -1,3 +1,4 @@
+import random
 class Player:
     def __init__(self, name):
         self.lives = 0
@@ -35,7 +36,8 @@ class Player:
                 break
             else:
                 items[target_i - 1].use(game, self)
-
+        if len(game.gun) == 0:
+            return False
         targets = []
         i = 1
         for player in game.living_players:
@@ -59,3 +61,14 @@ class Player:
 class Dealer(Player):
     def __init__(self):
         super().__init__("DEALER")
+
+    def take_turn(self, game):
+        if game.live > game.blanks:
+            target = self
+            while target == self:
+                target = random.choice(game.living_players)
+            game.fire_gun(target)
+            return True
+        else:
+            result = game.fire_gun(self)
+            return result

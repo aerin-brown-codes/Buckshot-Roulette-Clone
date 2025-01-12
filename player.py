@@ -4,19 +4,38 @@ class Player:
         self.items = []
         self.name = name
         self.next_player = None
+        self.cuffed = False
     
     def set_next_player(self, next_player):
         self.next_player = next_player
 
-    def new_round(self, lives, items):
-        self.items = items
+    def new_round(self, lives):
+        self.items = []
         self.lives = lives
+
+    def add_items(self, items):
+        self.items.extend(items)
     
     def display(self):
         print(self.name + ": " + "O" * self.lives)
-        # Item display
+        if len(self.items) > 0:
+            print(", ".join([item.name for item in self.items]))
     
     def take_turn(self, game):
+        while len(self.items) > 0:
+            i = 1
+            items = []
+            for item in self.items:
+                print(str(i) + ". " + item.name)
+                items.append(item)
+                i += 1
+            print(str(i) + ". Shotgun")
+            target_i = int(input("Select an item. (Enter a number) "))
+            if target_i == len(items) + 1:
+                break
+            else:
+                items[target_i - 1].use(game, self)
+
         targets = []
         i = 1
         for player in game.living_players:

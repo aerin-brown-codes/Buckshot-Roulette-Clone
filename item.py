@@ -29,11 +29,11 @@ class MagnifyingGlass(Item):
 
     def use(self, game, user):
         super().use(game, user)
-        if game.gun[0]:
+        if game.gun[-1]:
             print("You see a live round in the chamber.")
         else:
             print("You see a blank round in the chamber.")
-        return game.gun[0]
+        return game.gun[-1]
     
 class Cigarettes(Item):
     def __init__(self):
@@ -53,7 +53,7 @@ class Beer(Item):
     
     def use(self, game, user):
         super().use(game, user)
-        racked = game.gun.pop(0)
+        racked = game.gun.pop()
         print("SH-SHCK")
         if racked:
             print("A live shell falls out.")
@@ -68,8 +68,15 @@ class Inverter(Item):
     
     def use(self, game, user):
         super().use(game, user)
-        game.gun[0] = not game.gun[0]
-        return game.gun[0]
+        game.gun[-1] = not game.gun[-1]
+        if game.gun[-1]:
+            game.live += 1
+            game.blanks -= 1
+            return True
+        else:
+            game.blanks += 1
+            game.live -= 1
+            return False
     
 class Handcuffs(Item):
     def __init__(self):
@@ -77,17 +84,27 @@ class Handcuffs(Item):
     
     def use(self, game, user):
         super().use(game, user)
-        targets = []
-        i = 1
-        for player in game.living_players:
-            if player != self:
-                print (str(i) + ". " + player.name)
-                targets.append(player)
-                i += 1
-        target_i = int(input("Cuff a player. (Enter a number) "))
-        target = targets[target_i - 1]
-        target.cuffed = True
-        return True
+        if user.name != "DEALER":
+            targets = []
+            i = 1
+            for player in game.living_players:
+                if player != self:
+                    print (str(i) + ". " + player.name)
+                    targets.append(player)
+                    i += 1
+            target_i = int(input("Cuff a player. (Enter a number) "))
+            target = targets[target_i - 1]
+            target.cuffed = True
+            return True
+        else:
+            if game.living_players[-1] == self:
+                opponents = [game.living_players[:-1]]
+            else:
+                dealer_i = game.living_players.index(self)
+                opponents = game.living_players[dealer_i + 1:] + game.living_players[:dealer_i]
+            for player in opponents:
+                if not player.cuffed:
+                    player.cuffed = True
 
 class HandSaw(Item):
     def __init__(self):

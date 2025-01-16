@@ -63,12 +63,74 @@ class Dealer(Player):
         super().__init__("DEALER")
 
     def take_turn(self, game):
-        if game.live > game.blanks:
-            target = self
-            while target == self:
-                target = random.choice(game.living_players)
-            game.fire_gun(target)
-            return True
+        bullet = False
+        item_names = [item.name for item in self.items]
+        while game.blanks != 0 and "Beer" in item_names:
+            for item in self.items:
+                if item.name == "Beer":
+                    item.use(game, self)
+                    item_names.remove("Beer")
+                    break
+        while self.lives < game.lives and "Cigarettes" in item_names:
+            for item in self.items:
+                if item.name == "Cigarettes":
+                    item.use(game, self)
+                    item_names.remove("Cigarettes")
+                    break        
+        if "Magnifying Glass" in item_names:
+            known = True
+            for item in self.items:
+                if item.name == "Magnifying Glass":
+                    bullet = item.use(game, self)
+                    break
+        if (game.blanks > game.live or (known and not bullet)) and "Inverter" in item_names:
+            known = True # Technically, no this is not a guarantee. The dealer is making an assumption
+            bullet = True
+            for item in self.items:
+                if item.name == "Inverter":
+                    item.use(game, self)
+                    break
+
+        if "Hand Saw" in item_names and (bullet or game.live > game.blanks):
+            for item in self.items:
+                if item.name == "Hand Saw":
+                    item.use(game, self)
+                    break
+        
+        if game.living_players[-1] == self:
+            opponents = [game.living_players[:-1]]
         else:
-            result = game.fire_gun(self)
-            return result
+            dealer_i = game.living_players.index(self)
+            opponents = game.living_players[dealer_i + 1:] + game.living_players[:dealer_i]
+        for player in opponents:
+            if "Handcuffs" in item_names and not player.cuffed:
+                for item in self.items:
+                    if item.name == "Handcuffs":
+                        item.use(game, self)
+                        item_names.remove("Handcuffs")
+                        break
+        
+        if known:
+            if bullet:
+                print("The DEALER points the shotgun at you.")
+                target = self
+                while target == self:
+                    target = random.choice(game.living_players)
+                game.fire_gun(target)
+                return True
+            else:
+                print("The DEALER turns the shotgun on himself.")
+                result = game.fire_gun(self)
+                return result
+        else:
+            if game.live > game.blanks:
+                print("The DEALER points the shotgun at you.")
+                target = self
+                while target == self:
+                    target = random.choice(game.living_players)
+                game.fire_gun(target)
+                return True
+            else:
+                print("The DEALER turns the shotgun on himself.")
+                result = game.fire_gun(self)
+                return result

@@ -57,10 +57,11 @@ class Beer(Item):
         print("SH-SHCK")
         if racked:
             print("A live shell falls out.")
-            return True
         else:
             print("A blank shell falls out.")
-            return False
+        if len(game.gun) == 0:
+            game.load_gun()
+        return racked
         
 class Inverter(Item):
     def __init__(self):
